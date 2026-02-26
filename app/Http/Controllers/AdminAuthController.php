@@ -10,12 +10,17 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminAuthController extends Controller
 {
-    public function showLogin(): View
+    public function showLogin(): View|RedirectResponse
     {
+        if (Auth::check() && Auth::user()?->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return view('admin.login');
     }
 
@@ -75,6 +80,80 @@ class AdminAuthController extends Controller
             'categories' => $categories,
             'editItem' => $editItem,
         ]);
+    }
+
+    public function returnsDashboard(): View
+    {
+        $returnQueue = Loan::query()
+            ->with(['student', 'loanItems'])
+            ->whereIn('status', ['borrowed', 'overdue'])
+            ->where('approval_status', Loan::APPROVAL_APPROVED)
+            ->latest('borrowed_at')
+            ->get();
+
+        $returnedLoans = Loan::query()
+            ->with('student')
+            ->where('status', 'returned')
+            ->latest('returned_at')
+            ->limit(15)
+            ->get();
+
+        return view('admin.returns-dashboard', [
+            'returnQueue' => $returnQueue,
+            'returnedLoans' => $returnedLoans,
+            'queueCount' => $returnQueue->count(),
+            'returnedTodayCount' => Loan::query()
+                ->where('status', 'returned')
+                ->whereDate('returned_at', now()->toDateString())
+                ->count(),
+            'pendingApprovalCount' => Loan::query()
+                ->whereIn('status', ['borrowed', 'overdue'])
+                ->where('approval_status', Loan::APPROVAL_PENDING)
+                ->count(),
+        ]);
+    }
+
+    public function processReturn(Loan $loan): RedirectResponse
+    {
+        if ($loan->status === 'returned') {
+            return redirect()
+                ->route('admin.returns.dashboard')
+                ->with('error', 'Pinjaman ini sudah berstatus dikembalikan.');
+        }
+
+        if ($loan->approval_status !== Loan::APPROVAL_APPROVED) {
+            return redirect()
+                ->route('admin.returns.dashboard')
+                ->with('error', 'Hanya pinjaman berstatus disetujui yang bisa diproses pengembalian.');
+        }
+
+        DB::transaction(function () use ($loan): void {
+            $loan->load('loanItems');
+
+            foreach ($loan->loanItems as $loanItem) {
+                $remainingQuantity = max($loanItem->quantity - $loanItem->returned_quantity, 0);
+
+                if ($remainingQuantity > 0) {
+                    Item::query()
+                        ->whereKey($loanItem->item_id)
+                        ->increment('available_stock', $remainingQuantity);
+
+                    $loanItem->update([
+                        'returned_quantity' => $loanItem->quantity,
+                    ]);
+                }
+            }
+
+            $loan->update([
+                'status' => 'returned',
+                'returned_at' => now(),
+                'return_method' => 'manual',
+            ]);
+        });
+
+        return redirect()
+            ->route('admin.returns.dashboard')
+            ->with('success', 'Pengembalian pinjaman berhasil diproses.');
     }
 
     public function updateLoan(Request $request, Loan $loan): RedirectResponse

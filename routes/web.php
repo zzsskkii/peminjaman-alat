@@ -17,11 +17,13 @@ Route::prefix('admin')->group(function (): void {
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/returns', [AdminAuthController::class, 'returnsDashboard'])->name('admin.returns.dashboard');
         Route::post('/items', [AdminAuthController::class, 'storeItem'])->name('admin.items.store');
         Route::put('/items/{item}', [AdminAuthController::class, 'updateItem'])->name('admin.items.update');
         Route::delete('/items/{item}', [AdminAuthController::class, 'destroyItem'])->name('admin.items.destroy');
         Route::put('/loans/{loan}', [AdminAuthController::class, 'updateLoan'])->name('admin.loans.update');
         Route::delete('/loans/{loan}', [AdminAuthController::class, 'destroyLoan'])->name('admin.loans.destroy');
+        Route::post('/returns/{loan}/process', [AdminAuthController::class, 'processReturn'])->name('admin.returns.process');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
     });
 });

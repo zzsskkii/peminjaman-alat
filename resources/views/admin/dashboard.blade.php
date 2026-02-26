@@ -22,6 +22,12 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+        .top-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         .metrics {
             margin-top: 16px;
             display: grid;
@@ -113,6 +119,7 @@
             cursor: pointer;
         }
         .btn { background: #1d3044; color: #edf4fb; }
+        .btn.active { background: #ff8a3d; color: #1e1308; }
         button { background: #ff8a3d; color: #1e1308; }
         .status-pill {
             display: inline-block;
@@ -158,8 +165,10 @@
                 <h1 style="margin: 0;">Dashboard Admin</h1>
                 <p style="margin: 4px 0 0; color: #93aac0;">Ringkasan data peminjaman alat.</p>
             </div>
-            <div style="display:flex; gap:8px;">
-                <a class="btn" href="/">Buka</a>
+            <div class="top-links">
+                <a class="btn active" href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
+                <a class="btn" href="{{ route('admin.returns.dashboard') }}">Pengembalian</a>
+                <a class="btn" href="/">Back</a>
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit">Logout</button>

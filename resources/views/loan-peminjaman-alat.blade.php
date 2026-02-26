@@ -2,317 +2,376 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Inventaris - SMK TI Airlangga</title>
     
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|ibm-plex-mono:400,500" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=space-grotesk:500,700|ibm-plex-mono:600" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
-            --navy-dark: #001529; /* */
-            --navy-sidebar: #002140; /* */
+            --navy: #002140; /* */
             --gold: #fcc419; /* */
+            --bg-light: #f8fafc;
             --white: #ffffff;
-            --bg-main: #f8fafc;
             --border: #e2e8f0;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --text-dark: #0f172a;
         }
 
-        * { box-sizing: border-box; transition: all 0.25s ease-in-out; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
+            margin: 0; padding: 0;
             font-family: "Space Grotesk", sans-serif;
-            background-color: var(--bg-main);
-            display: flex;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
             height: 100vh;
+            display: flex;
             overflow: hidden;
         }
 
-        /* --- SIDEBAR (Tetap Padat) --- */
+        /* --- SIDEBAR KIRI --- */
         aside {
-            width: 260px;
-            background-color: var(--navy-sidebar);
+            width: 280px;
+            background-color: var(--white);
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-            z-index: 50;
+            padding: 20px;
+            gap: 12px;
+            border-right: 2px solid var(--border);
         }
 
-        .sidebar-brand {
-            padding: 40px 20px;
+        .brand-box {
+            padding: 20px 10px;
             text-align: center;
-            background: var(--navy-dark);
             border-bottom: 2px solid var(--gold);
+            margin-bottom: 10px;
         }
 
-        .sidebar-brand h2 {
-            margin: 0; color: var(--gold); font-size: 1.2rem; letter-spacing: 1px;
+        .brand-box h1 { font-size: 1.1rem; color: var(--navy); margin: 0; font-weight: 800; }
+
+        .nav-btn {
+            flex: 1; /* Tombol tinggi memenuhi sidebar */
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            background: var(--white);
+            color: var(--navy);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .nav-menu { padding: 20px 15px; flex-grow: 1; }
-
-        .nav-item {
-            display: flex; align-items: center; padding: 15px; margin-bottom: 10px;
-            border-radius: 12px; cursor: pointer; color: rgba(255,255,255,0.6);
-            font-weight: 600; text-decoration: none;
+        .nav-btn.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--navy);
+            box-shadow: 0 4px 15px rgba(252, 196, 25, 0.3);
         }
 
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
-        .nav-item.active { background: var(--gold); color: var(--navy-dark); }
-
-        /* --- MAIN AREA --- */
-        main { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-
-        header {
-            background: var(--white); padding: 20px 40px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border);
+        /* --- MAIN CONTENT --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
         }
 
-        .status-indicator { display: flex; gap: 10px; align-items: center; }
-        .dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; }
+        /* INTERACTION ZONE (ATAS) */
+        .interaction-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 25px;
+        .tap-card {
+            background: var(--white);
+            border: 3px solid var(--navy);
+            border-radius: 25px;
             padding: 30px;
-            height: calc(100vh - 80px);
-        }
-
-        /* --- ACTION SECTION (CENTER) --- */
-        .content-main { display: flex; flex-direction: column; gap: 25px; }
-
-        .tap-hero {
-            background: var(--navy-dark);
-            border-radius: 24px;
-            padding: 50px;
             text-align: center;
-            color: var(--white);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .tap-card h2 { font-size: 1.8rem; margin: 0; color: var(--navy); letter-spacing: 1px; }
+
+        .uid-input {
+            background: var(--bg-light);
             border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            font-size: 2.5rem;
+            color: var(--navy);
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            outline: none;
         }
 
-        .tap-hero::before {
-            content: ""; position: absolute; inset: 0;
-            background-image: radial-gradient(circle at 2px 2px, rgba(252, 196, 25, 0.1) 1px, transparent 0);
-            background-size: 20px 20px;
+        /* ITEMS AREA (TENGAH) */
+        .items-display {
+            flex: 1;
+            background: var(--white);
+            border-radius: 25px;
+            padding: 20px;
+            border: 2px solid var(--border);
+            overflow-y: auto;
         }
-
-        .tap-hero input {
-            background: rgba(255,255,255,0.05); border: 2px solid var(--gold);
-            border-radius: 15px; padding: 20px; color: var(--gold);
-            font-size: 2rem; width: 100%; max-width: 400px; text-align: center;
-            font-family: "IBM Plex Mono", monospace; outline: none; margin: 20px 0;
-        }
-
-        .tap-hero input::placeholder { color: rgba(252, 196, 25, 0.3); }
-
-        /* --- STATS SECTION (RIGHT SIDE) --- */
-        .content-side { display: flex; flex-direction: column; gap: 20px; }
-
-        .stat-card {
-            background: var(--white); border-radius: 20px; padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .stat-card h4 { margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-        .stat-card .val { font-size: 2rem; font-weight: 700; color: var(--navy-dark); }
-
-        /* --- DYNAMIC ITEMS AREA --- */
-        .items-area {
-            background: var(--white); border-radius: 24px; padding: 25px;
-            border: 1px solid var(--border); flex-grow: 1; overflow-y: auto;
-        }
-
         .item-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        .item-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            background: #fff;
+            font-size: 1.2rem;
+        }
+        .item-qty {
+            width: 100%;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            min-height: 64px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .profile-bar {
+            background: var(--gold);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 1.35rem;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .action-footer {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .action-footer textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            resize: vertical;
+            min-height: 64px;
+            font-size: 1.15rem;
+        }
+        .action-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 16px 22px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            background: var(--gold);
+            color: var(--navy);
+            cursor: pointer;
+            min-height: 64px;
+            width: 100%;
         }
 
-        .item-box {
-            border: 1px solid var(--border); padding: 15px; border-radius: 15px;
-            background: #fcfcfc; text-align: center;
+        /* --- STATS BAR (BAWAH) --- */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.5fr; /* Layout sketsa */
+            gap: 12px;
+            height: 120px;
         }
 
-        .qty-badge {
-            background: var(--navy-dark); color: var(--gold);
-            padding: 4px 10px; border-radius: 8px; font-family: "IBM Plex Mono", monospace;
-            font-size: 0.8rem; margin-top: 10px; display: inline-block;
+        .stat-item {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .btn-action {
-            background: var(--gold); color: var(--navy-dark); border: none;
-            padding: 18px; border-radius: 15px; font-weight: 800;
-            cursor: pointer; width: 100%; font-size: 1rem; margin-top: 20px;
-        }
+        .stat-item .label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .stat-item .value { font-size: 2rem; font-weight: 800; color: var(--navy); }
 
-        .btn-action:hover { background: #e6b000; transform: scale(1.02); }
+        .info-box {
+            background: var(--navy);
+            color: var(--white);
+            border-radius: 18px;
+            padding: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+        }
 
         .hidden { display: none; }
         .toast {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -56%) scale(0.96);
-            width: min(520px, calc(100vw - 48px));
-            min-height: 120px;
-            padding: 20px 24px;
+            transform: translate(-50%, -54%) scale(0.96);
+            width: min(440px, calc(100vw - 40px));
+            min-height: 96px;
+            padding: 16px 18px;
             border-radius: 16px;
-            color: #ffffff;
-            font-weight: 800;
-            font-size: clamp(1.4rem, 3.8vw, 2.2rem);
-            line-height: 1.2;
+            color: #fff;
+            font-weight: 700;
+            font-size: clamp(1rem, 2.6vw, 1.25rem);
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
             z-index: 9999;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.25s ease;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            overflow: hidden;
+        }
+        .toast::before {
+            content: "";
+            position: absolute;
+            inset: -30% -10%;
+            background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%);
+            pointer-events: none;
         }
         .toast.show {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
         }
-        .toast.success { background: #16a34a; }
+        .toast.success {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border: 1px solid rgba(255,255,255,0.24);
+        }
         .toast.error {
-            background: #dc2626;
-            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(220, 38, 38, 0.18);
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border: 1px solid rgba(255,255,255,0.24);
         }
         .toast-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.42);
-            backdrop-filter: blur(1px);
+            background: rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             z-index: 9998;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.25s ease;
+            transition: opacity 0.2s ease;
         }
         .toast-backdrop.show {
             opacity: 1;
         }
-
-        /* --- PROFILE POPUP --- */
-        .profile-bar {
-            background: var(--gold); color: var(--navy-dark);
-            padding: 15px 25px; border-radius: 15px; margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: 700;
-        }
-
-        @media (max-width: 1100px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .content-side { display: none; }
-        }
     </style>
 </head>
 <body>
+    @php
+        $mode = request()->query('mode', 'borrow');
+        $isReturnMode = $mode === 'return';
+    @endphp
 
     <aside>
-        <div class="sidebar-brand">
-            <h2>SMK TI AIRLANGGA</h2>
-        </div>
-        <nav class="nav-menu">
-            <div id="navBorrow" class="nav-item active" onclick="setMode('borrow')">
-                <span>PINJAM ALAT</span>
-            </div>
-            <div id="navReturn" class="nav-item" onclick="setMode('return')">
-                <span>PENGEMBALIAN</span>
-            </div>
-            <a class="nav-item" href="{{ route('admin.login.form') }}">
-                <span>LOGIN ADMIN</span>
-            </a>
-            <div class="nav-item" onclick="location.reload()">
-                <span>REFRESH SISTEM</span>
-            </div>
-        </nav>
-        <div style="padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.75rem;">
-            Inventory Management System v2.0
-        </div>
+        <div class="brand-box">
+            <h1>SMK TI AIRLANGGA</h1> </div>
+
+        <a href="{{ url('/') }}?mode=borrow" class="nav-btn {{ $isReturnMode ? '' : 'active' }}">
+            <i data-lucide="log-in" size="32"></i>
+            <span>PINJAM ALAT</span>
+        </a>
+
+        <a href="{{ url('/') }}?mode=return" class="nav-btn {{ $isReturnMode ? 'active' : '' }}">
+            <i data-lucide="log-out" size="32"></i>
+            <span>PENGEMBALIAN</span>
+        </a>
+
+        <a href="{{ route('admin.login.form') }}" class="nav-btn">
+            <i data-lucide="user-cog" size="32"></i>
+            <span>ADMIN LOGIN</span>
+        </a>
+
+        <button type="button" class="nav-btn" onclick="location.reload()">
+            <i data-lucide="refresh-cw" size="32"></i>
+            <span>REFRESH</span>
+        </button>
     </aside>
 
     <main>
-        <header>
-            <h2 id="pageTitle" style="margin:0; color: var(--navy-dark);">Dashboard Peminjaman</h2>
-            <div class="status-indicator">
-                <span style="font-size: 0.9rem; font-weight: 600;">System Online</span>
-                <div class="dot"></div>
-            </div>
-        </header>
-
-        <div class="dashboard-grid">
-            <div class="content-main">
-                
-                <section class="tap-hero">
-                    <h3 style="margin:0; letter-spacing: 2px;">IDENTIFIKASI KARTU</h3>
-                    <p style="color: rgba(255,255,255,0.6)">Silakan tap kartu pelajar pada reader untuk memulai</p>
-                    <input id="cardUidInput" placeholder="Siswa UID..." autofocus autocomplete="off">
-                    <div id="tapStatus" style="font-weight: 600; color: var(--gold)">Menunggu scan...</div>
-                </section>
-
-                <div id="dynamicContent" class="items-area">
-                    <div id="defaultInstruction" style="text-align: center; padding: 40px;">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2910/2910795.png" width="80" style="opacity: 0.2; margin-bottom: 20px;">
-                        <h3 style="color: var(--text-muted)">Belum Ada Kartu yang Terdeteksi</h3>
-                        <p style="color: var(--text-muted)">Daftar alat akan muncul di sini secara otomatis setelah scan.</p>
-                    </div>
-
-                    <div id="studentProfile" class="profile-bar hidden"></div>
-
-                    <div id="itemsContainer" class="item-grid hidden"></div>
-
-                    <div id="actionFooter" class="hidden">
-                        <textarea id="notesInput" style="width: 100%; margin-top:20px; padding:15px; border-radius:12px; border:1px solid var(--border)" rows="2" placeholder="Catatan tambahan..."></textarea>
-                        <button id="mainActionButton" class="btn-action">KONFIRMASI SEKARANG</button>
-                    </div>
-                </div>
+        <div class="interaction-zone">
+            <div style="display:flex; justify-content: space-between; align-items: center; padding: 0 10px;">
+                <h2 style="margin:0; font-size: 1.2rem; color: #64748b;">{{ $isReturnMode ? 'Dashboard Pengembalian' : 'Dashboard Peminjaman' }}</h2>
+                <div style="color: #10b981; font-weight: 700; font-size: 0.9rem;">● SYSTEM ONLINE</div>
             </div>
 
-            <div class="content-side">
-                <div class="stat-card">
-                    <h4>Total Alat Tersedia</h4>
-                    <div class="val" id="totalItemsStat">342</div>
+            <section class="tap-card">
+                <h2>IDENTIFIKASI KARTU</h2>
+                <p style="color: #64748b; margin-top: 5px;">(Silakan Tap Kartu Pelajar)</p>
+                <input id="cardUidInput" class="uid-input" placeholder="Siswa UID..." autofocus>
+                <div id="tapStatus" style="font-weight: 700; color: var(--navy);">Menunggu Scan...</div>
+            </section>
+
+            <div id="itemsDisplay" class="items-display">
+                <div id="defaultInstruction" style="text-align: center; padding: 40px; color: #cbd5e1;">
+                    <i data-lucide="layers" size="64"></i>
+                    <h3>Daftar alat akan muncul di sini.</h3>
                 </div>
-                <div class="stat-card" style="border-left: 5px solid var(--gold);">
-                    <h4>Peminjaman Aktif</h4>
-                    <div class="val">18</div>
-                </div>
-                <div class="stat-card" style="background: var(--navy-dark); color: white;">
-                    <h4 style="color: var(--gold)">Waktu Sistem</h4>
-                    <div class="val" id="clock" style="color: white; font-family: 'IBM Plex Mono';">00:00</div>
-                </div>
-                <div class="stat-card">
-                    <h4>Informasi</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-                        Siswa wajib mengembalikan alat sebelum jam 16:00 WITA. Kerusakan alat menjadi tanggung jawab peminjam.
-                    </p>
+                <div id="studentProfile" class="profile-bar hidden"></div>
+                <div id="itemsContainer" class="item-grid hidden"></div>
+                <div id="actionFooter" class="action-footer hidden">
+                    <textarea id="notesInput" placeholder="Catatan tambahan..."></textarea>
+                    <button id="mainActionButton" type="button" class="action-btn">SIMPAN</button>
                 </div>
             </div>
         </div>
-    </main>
 
+        <footer class="stats-bar">
+            <div class="stat-item">
+                <div class="label">Total Alat</div>
+                <div class="value">342</div>
+            </div>
+            <div class="stat-item">
+                <div class="label">Dipinjam</div>
+                <div class="value">18</div>
+            </div>
+            <div class="stat-item">
+                <div class="label">Jam</div>
+                <div id="clock" class="value">21:11</div>
+            </div>
+            <div class="info-box">
+                <p><strong>INFO:</strong> Siswa wajib mengembalikan alat tepat waktu. Segala kerusakan menjadi tanggung jawab peminjam.</p>
+            </div>
+        </footer>
+    </main>
     <div id="toastBackdrop" class="toast-backdrop" aria-hidden="true"></div>
     <div id="appToast" class="toast" aria-live="polite"></div>
 
     <script>
-        // Data State
         const state = {
-            mode: 'borrow',
+            mode: @json($isReturnMode ? 'return' : 'borrow'),
             cardUid: '',
             student: null,
             items: @json($items),
-            activeLoan: null
+            activeLoan: null,
         };
         let toastTimer = null;
+        let scanTimer = null;
+        let isScanProcessing = false;
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('appToast');
@@ -320,7 +379,9 @@
             toast.textContent = message;
             toast.className = `toast ${type}`;
 
-            if (toastTimer) clearTimeout(toastTimer);
+            if (toastTimer) {
+                clearTimeout(toastTimer);
+            }
 
             requestAnimationFrame(() => {
                 backdrop.classList.add('show');
@@ -333,135 +394,152 @@
             }, 2200);
         }
 
-        // UI Logic
-        function setMode(mode) {
-            state.mode = mode;
-            document.getElementById('pageTitle').textContent = mode === 'borrow' ? 'Dashboard Peminjaman' : 'Dashboard Pengembalian';
-            document.getElementById('navBorrow').classList.toggle('active', mode === 'borrow');
-            document.getElementById('navReturn').classList.toggle('active', mode === 'return');
-            resetUI();
-        }
-
-        function resetUI() {
-            document.getElementById('defaultInstruction').classList.remove('hidden');
-            document.getElementById('studentProfile').classList.add('hidden');
-            document.getElementById('itemsContainer').classList.add('hidden');
-            document.getElementById('actionFooter').classList.add('hidden');
-            document.getElementById('cardUidInput').value = '';
-            document.getElementById('cardUidInput').focus();
-        }
-
-        // Mock Jam
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-        }, 1000);
-
-        // Core Interaction
-        document.getElementById('cardUidInput').addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter') {
-                const uid = e.target.value.trim();
-                if(!uid) return;
-
-                try {
-                    // Tampilkan Loading
-                    document.getElementById('tapStatus').textContent = "Memverifikasi data...";
-                    
-                    const response = await fetch('/tap-card', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                        body: JSON.stringify({ card_uid: uid, mode: state.mode })
-                    });
-                    const data = await response.json();
-                    
-                    if(!response.ok) throw new Error(data.message);
-
-                    state.cardUid = uid;
-                    state.student = data.student;
-
-                    // Update UI Dinamis
-                    document.getElementById('tapStatus').textContent = "Identitas Ditemukan!";
-                    document.getElementById('tapStatus').style.color = 'var(--gold)';
-                    document.getElementById('defaultInstruction').classList.add('hidden');
-                    
-                    // Show Profile
-                    const profile = document.getElementById('studentProfile');
-                    profile.innerHTML = `<span>SISWA: ${data.student.name}</span> <span>NIS: ${data.student.student_number}</span>`;
-                    profile.classList.remove('hidden');
-
-                    // Render Items
-                    const container = document.getElementById('itemsContainer');
-                    container.classList.remove('hidden');
-                    document.getElementById('actionFooter').classList.remove('hidden');
-
-                    if(state.mode === 'borrow') {
-                        renderBorrow(data.items || state.items);
-                    } else {
-                        state.activeLoan = data.loan;
-                        renderReturn(data.loan_items);
-                    }
-
-                } catch (err) {
-                    document.getElementById('tapStatus').textContent = err.message;
-                    document.getElementById('tapStatus').style.color = '#ef4444';
-                }
-            }
-        });
-
         function renderBorrow(items) {
             const container = document.getElementById('itemsContainer');
-            container.innerHTML = items.map(i => `
-                <div class="item-box">
-                    <strong>${i.name}</strong><br>
-                    <span class="qty-badge">Stok: ${i.available_stock}</span>
-                    <input type="number" class="qty-input" data-id="${i.id}" value="0" min="0" max="${i.available_stock}" style="width:100%; margin-top:10px; padding:5px; border-radius:5px;">
+            container.innerHTML = items.map((item) => `
+                <div class="item-card">
+                    <strong>${item.name}</strong>
+                    <div style="color:#64748b; margin-top:4px;">Stok: ${item.available_stock}</div>
+                    <input class="item-qty" type="number" min="0" max="${item.available_stock}" value="0" data-id="${item.id}">
                 </div>
             `).join('');
-            document.getElementById('mainActionButton').textContent = "SIMPAN PEMINJAMAN";
+            document.getElementById('mainActionButton').textContent = 'SIMPAN PEMINJAMAN';
+            document.getElementById('notesInput').parentElement.classList.remove('hidden');
         }
 
         function renderReturn(loanItems) {
             const container = document.getElementById('itemsContainer');
-            container.innerHTML = loanItems.map(i => `
-                <div class="item-box">
-                    <strong>${i.item_name}</strong><br>
-                    <span class="qty-badge">Sisa: ${i.remaining_quantity}</span>
-                    <input type="number" class="qty-input" data-id="${i.item_id}" value="0" min="0" max="${i.remaining_quantity}" style="width:100%; margin-top:10px; padding:5px; border-radius:5px;">
+            container.innerHTML = loanItems.map((item) => `
+                <div class="item-card">
+                    <strong>${item.item_name}</strong>
+                    <div style="color:#64748b; margin-top:4px;">Sisa: ${item.remaining_quantity}</div>
+                    <input class="item-qty" type="number" min="0" max="${item.remaining_quantity}" value="0" data-id="${item.item_id}">
                 </div>
             `).join('');
-            document.getElementById('mainActionButton').textContent = "PROSES PENGEMBALIAN";
+            document.getElementById('mainActionButton').textContent = 'PROSES PENGEMBALIAN';
+            document.getElementById('notesInput').value = '';
+            document.getElementById('notesInput').parentElement.classList.remove('hidden');
         }
 
-        // Action Save
-        document.getElementById('mainActionButton').addEventListener('click', async () => {
-            const inputs = Array.from(document.querySelectorAll('.qty-input'))
-                .map(i => ({ item_id: Number(i.dataset.id), quantity: Number(i.value) }))
-                .filter(i => i.quantity > 0);
+        async function onTapCard(uid) {
+            const tapStatus = document.getElementById('tapStatus');
+            tapStatus.textContent = 'Memverifikasi data...';
+            tapStatus.style.color = 'var(--navy)';
 
-            if (inputs.length === 0) {
-                showToast('Pilih alat dulu!', 'error');
+            const response = await fetch('/tap-card', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({ card_uid: uid, mode: state.mode }),
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Gagal membaca kartu.');
+            }
+
+            state.cardUid = uid;
+            state.student = data.student;
+            if (state.mode === 'return') {
+                state.activeLoan = data.loan;
+            }
+
+            document.getElementById('defaultInstruction').classList.add('hidden');
+            document.getElementById('itemsContainer').classList.remove('hidden');
+            document.getElementById('actionFooter').classList.remove('hidden');
+
+            const profile = document.getElementById('studentProfile');
+            profile.classList.remove('hidden');
+            profile.innerHTML = `<span>SISWA: ${data.student.name}</span><span>NIS: ${data.student.student_number}</span>`;
+
+            tapStatus.textContent = 'Kartu valid, lanjutkan proses.';
+            tapStatus.style.color = '#16a34a';
+
+            if (state.mode === 'borrow') {
+                renderBorrow(data.items || state.items);
+            } else {
+                renderReturn(data.loan_items || []);
+            }
+        }
+
+        async function processScannedUid(force = false) {
+            if (isScanProcessing) return;
+
+            const input = document.getElementById('cardUidInput');
+            const uid = input.value.trim();
+
+            // Scanner biasanya kirim karakter cepat; debounce ini membuat proses otomatis tanpa Enter.
+            if (!force && uid.length < 6) return;
+
+            try {
+                isScanProcessing = true;
+                await onTapCard(uid);
+            } catch (error) {
+                const tapStatus = document.getElementById('tapStatus');
+                tapStatus.textContent = error.message;
+                tapStatus.style.color = '#dc2626';
+            } finally {
+                isScanProcessing = false;
+            }
+        }
+
+        const cardUidInput = document.getElementById('cardUidInput');
+        cardUidInput.addEventListener('input', () => {
+            if (scanTimer) clearTimeout(scanTimer);
+            scanTimer = setTimeout(() => {
+                processScannedUid(false);
+            }, 220);
+        });
+
+        cardUidInput.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            if (scanTimer) clearTimeout(scanTimer);
+            processScannedUid(true);
+        });
+
+        document.getElementById('mainActionButton').addEventListener('click', async () => {
+            const selectedItems = Array.from(document.querySelectorAll('.item-qty'))
+                .map((input) => ({ item_id: Number(input.dataset.id), quantity: Number(input.value) }))
+                .filter((item) => item.quantity > 0);
+
+            if (selectedItems.length === 0) {
+                showToast('Pilih item dulu.', 'error');
                 return;
             }
 
             const url = state.mode === 'borrow' ? '/loans/borrow' : '/loans/return-items';
-            const payload = state.mode === 'borrow' 
-                ? { card_uid: state.cardUid, items: inputs, notes: document.getElementById('notesInput').value }
-                : { card_uid: state.cardUid, loan_id: state.activeLoan.id, items: inputs };
+            const payload = state.mode === 'borrow'
+                ? { card_uid: state.cardUid, items: selectedItems, notes: document.getElementById('notesInput').value }
+                : { card_uid: state.cardUid, loan_id: state.activeLoan.id, items: selectedItems };
 
             try {
-                const res = await fetch(url, {
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify(payload),
                 });
-                const data = await res.json().catch(() => ({}));
-                if(!res.ok) throw new Error(data.message || 'Gagal menyimpan');
-                showToast('Berhasil!', 'success');
-                setTimeout(() => location.reload(), 1200);
-            } catch (e) {
-                showToast(e.message || 'Gagal menyimpan', 'error');
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.message || 'Gagal menyimpan.');
+                }
+                showToast(state.mode === 'borrow' ? 'Peminjaman berhasil disimpan.' : 'Pengembalian berhasil diproses.', 'success');
+                setTimeout(() => location.reload(), 900);
+            } catch (error) {
+                showToast(error.message || 'Gagal menyimpan data.', 'error');
             }
         });
+
+        lucide.createIcons();
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        }, 1000);
     </script>
 </body>
 </html>
