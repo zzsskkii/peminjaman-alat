@@ -4,6 +4,8 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\LoanFlowController;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/login', '/admin/login')->name('login');
+
 Route::get('/', [LoanFlowController::class, 'peminjamanAlat']);
 
 Route::get('/items/active', [LoanFlowController::class, 'activeItems']);
